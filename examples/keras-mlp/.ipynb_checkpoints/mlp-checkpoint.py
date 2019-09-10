@@ -1,11 +1,12 @@
 import tensorflow as tf
 import wandb
 
+# initialize wandb & set hyperparamers
 run = wandb.init()
 config = run.config
 config.optimizer = "adam"
 config.epochs = 50
-config.dropout = 0.15
+config.dropout = 10
 config.hidden_nodes = 100
 
 # load data
@@ -25,17 +26,16 @@ y_test = tf.keras.utils.to_categorical(y_test)
 labels = [str(i) for i in range(10)]
 num_classes = y_train.shape[1]
 
+
 # create model
 model = tf.keras.models.Sequential()
 model.add(tf.keras.layers.Flatten(input_shape=(img_width, img_height)))
-model.add(tf.keras.layers.Dropout(config.dropout))
 model.add(tf.keras.layers.Dense(config.hidden_nodes, activation='relu'))
-model.add(tf.keras.layers.Dropout(config.dropout))
 model.add(tf.keras.layers.Dense(num_classes, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer=config.optimizer,
               metrics=['accuracy'])
 
-
 # Fit the model
 model.fit(X_train, y_train, validation_data=(X_test, y_test),
-          epochs=config.epochs, callbacks=[wandb.keras.WandbCallback(data_type="image", labels=labels)])
+          epochs=config.epochs,
+          callbacks=[wandb.keras.WandbCallback(data_type="image", labels=labels)])
